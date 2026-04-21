@@ -213,170 +213,151 @@ export default function App() {
   };
 
   const InputBlock = ({ 
-    title, icon: Icon, items, setter, color 
+    title, items, setter, color 
   }: { 
-    title: string, icon: any, items: string[], setter: any, color: string 
+    title: string, items: string[], setter: any, color: string 
   }) => (
-    <div className={`brutal-box p-6 border-4 flex flex-col gap-4 relative bg-[${color}]`} style={{ backgroundColor: color }}>
-      <div className="absolute -top-6 -left-4 bg-black text-white px-4 py-1 text-xl brutal-shadow transform -rotate-2 flex items-center gap-2">
-        <Icon size={24} /> {title}
-      </div>
-      <div className="mt-4 flex flex-col gap-3">
+    <div className={`border-[3px] border-black panel-shadow p-3 mb-2 shrink-0 ${color}`}>
+      <span className="text-[14px] uppercase mb-2 tracking-[1px] bg-black text-white inline-block px-2 py-0.5">{title}</span>
+      <div className="flex flex-col gap-1 mt-2">
         {items.map((item, i) => (
-          <input
-            key={i}
-            className="w-full border-2 border-black p-3 text-lg focus-glow"
-            placeholder={`#${i + 1} ${title}...`}
-            value={item}
-            onChange={(e) => handleInputChange(setter, i, e.target.value)}
-          />
+          <div key={i} className="flex gap-1 mb-1">
+            <input
+              className="bg-white border-[2px] border-black px-2 py-1 text-[12px] w-full font-black focus:outline-none focus:ring-2 focus:ring-black"
+              placeholder={`Item ${i + 1}`}
+              value={item}
+              onChange={(e) => handleInputChange(setter, i, e.target.value)}
+            />
+          </div>
         ))}
       </div>
     </div>
   );
 
   return (
-    <div className="min-h-screen py-12 px-4 md:px-8 overflow-hidden relative">
-      <div className="max-w-5xl mx-auto z-10 relative">
-        <header className="text-center mb-16">
-          <motion.h1 
-            initial={{ y: -50, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            className="text-6xl md:text-8xl font-black text-stroke uppercase mb-4 tracking-tighter"
-          >
-            JudgeMe
-          </motion.h1>
-          <div className="bg-vivid-yellow text-black border-4 border-black px-6 py-2 inline-block transform rotate-1 brutal-shadow text-xl md:text-2xl font-bold">
-            ROAST MY VIBE 
-          </div>
-        </header>
+    <div className="h-screen w-full flex flex-col border-[4px] border-black overflow-hidden relative bg-cream">
+      <div className="absolute inset-0 halftone pointer-events-none z-0"></div>
+      
+      <header className="h-[100px] flex items-center justify-center border-b-[4px] border-black bg-vivid-yellow px-5 overflow-hidden shrink-0 z-10 relative box-content">
+        <motion.div 
+          initial={{ y: -50, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          className="text-[40px] md:text-[72px] tracking-[-4px] uppercase text-stroke whitespace-nowrap font-black"
+        >
+          ROAST MY VIBE • JUDGE ME • ROAST MY VIBE • JUDGE ME
+        </motion.div>
+      </header>
 
-        {step === 'input' && (
-          <motion.div 
-            initial={{ scale: 0.9, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            className="flex flex-col gap-12"
-          >
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
-              <InputBlock title="Songs" icon={Music} items={songs} setter={setSongs} color="#C4B5FD" />
-              <InputBlock title="Movies" icon={Clapperboard} items={movies} setter={setMovies} color="#FFD93D" />
-              <InputBlock title="Foods" icon={Pizza} items={foods} setter={setFoods} color="#FF6B6B" />
+      <main className="flex-grow grid grid-cols-1 md:grid-cols-[400px_1fr] overflow-hidden z-10 relative">
+        <section className="p-6 border-b-[4px] md:border-b-0 md:border-r-[4px] border-black flex flex-col gap-4 bg-white overflow-y-auto shrink-0 md:shrink">
+          <InputBlock title="Top 3 Bangers" items={songs} setter={setSongs} color="bg-violet" />
+          <InputBlock title="Top 3 Flicks" items={movies} setter={setMovies} color="bg-vivid-yellow" />
+          <InputBlock title="Top 3 Eats" items={foods} setter={setFoods} color="bg-cream" />
+        </section>
+
+        <section className="p-4 md:p-10 flex items-center justify-center bg-[#f0f0f0] relative overflow-y-auto">
+          {step === 'input' && (
+            <div className="text-center opacity-30 pointer-events-none">
+              <div className="text-6xl font-black rotate-[-5deg]">🔥 READY 🔥</div>
             </div>
+          )}
 
-            <div className="bg-white border-4 border-black p-6 brutal-shadow mx-auto w-full max-w-2xl text-center">
-              <h2 className="text-2xl font-bold mb-6">SELECT ROAST INTENSITY</h2>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                {(['Mild', 'Spicy', 'Nuclear'] as Intensity[]).map(level => (
-                  <button
-                    key={level}
-                    onMouseEnter={playHoverSound}
-                    onClick={() => setIntensity(level)}
-                    className={`flex-1 border-4 border-black py-3 px-6 text-xl font-bold uppercase transition-transform brutal-btn-shadow relative
-                      ${intensity === level ? 'bg-black text-white transform scale-105' : 'bg-white text-black hover:bg-gray-100'}`}
-                  >
-                    {level}
-                    {level === 'Nuclear' && intensity === 'Nuclear' && (
-                      <div className="absolute -top-4 -right-4 bg-hot-red text-white p-2 rounded-full border-2 border-black animate-spin-slow">
-                        <Skull size={20} />
-                      </div>
-                    )}
-                  </button>
-                ))}
-              </div>
+          {step === 'countdown' && (
+            <div className="flex items-center justify-center min-h-[50vh]">
+              <motion.div
+                key={countdown}
+                initial={{ scale: 0.5, opacity: 0 }}
+                animate={{ scale: 1.5, opacity: 1 }}
+                exit={{ scale: 2, opacity: 0 }}
+                className="text-9xl font-black text-stroke-huge"
+              >
+                {countdown}
+              </motion.div>
             </div>
+          )}
 
-            <button 
-              onClick={handleRoast}
-              disabled={loading}
-              className={`mx-auto bg-hot-red text-white text-3xl font-black uppercase tracking-widest border-4 border-black py-6 px-12 brutal-btn relative w-full max-w-2xl ${loading ? 'opacity-50' : ''}`}
+          {step === 'result' && roastData && (
+            <motion.div 
+              initial={{ y: 100, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
             >
-              {loading ? 'ANALYZING TRASH TASTE...' : 'ROAST ME'}
-              {loading && <RefreshCw className="animate-spin absolute right-6 top-1/2 transform -translate-y-1/2" size={32} />}
-            </button>
-          </motion.div>
-        )}
-
-        {step === 'countdown' && (
-          <div className="flex items-center justify-center min-h-[50vh]">
-            <motion.div
-              key={countdown}
-              initial={{ scale: 0.5, opacity: 0 }}
-              animate={{ scale: 1.5, opacity: 1 }}
-              exit={{ scale: 2, opacity: 0 }}
-              className="text-9xl font-black text-stroke-huge"
-            >
-              {countdown}
-            </motion.div>
-          </div>
-        )}
-
-        {step === 'result' && roastData && (
-          <motion.div 
-            initial={{ y: 100, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            className="flex flex-col items-center gap-8 pb-20"
-          >
-            {/* The Shareable Poster */}
-            <div 
-              ref={resultRef}
-              className="w-full max-w-3xl bg-cream border-8 border-black p-8 md:p-12 brutal-shadow relative overflow-hidden"
-            >
-              {/* Halftone BG overlay inside poster */}
-              <div className="absolute inset-0 opacity-10 pointer-events-none" style={{ backgroundImage: 'radial-gradient(black 1px, transparent 1px)', backgroundSize: '16px 16px' }}></div>
+              <div className="absolute top-[20px] left-[20px] text-[40px] z-20 animate-bounce-intense hidden md:block">🔥</div>
               
-              <div className="absolute top-4 right-4 bg-black text-white border-2 border-black px-4 py-2 text-xl font-bold transform rotate-6 brutal-shadow">
-                SCORE: {roastData.vibe_score}/10
-              </div>
-
-              <div className="absolute -left-6 top-10 bg-vivid-yellow border-4 border-black px-6 py-2 transform -rotate-3 brutal-shadow">
-                <span className="text-2xl font-black">{roastData.vibe_title}</span>
-              </div>
-
-              <div className="mt-20 mb-10">
-                <h2 className="text-5xl font-black uppercase text-stroke mb-8 tracking-tighter">THE VERDICT</h2>
-                <div className="text-2xl leading-relaxed font-bold bg-white/80 p-6 border-4 border-black box-shadow-solid">
-                  {typedRoast}
-                  <span className="animate-pulse">_</span>
+              <div 
+                ref={resultRef}
+                className="bg-white w-[500px] max-w-full min-h-[450px] border-[4px] border-black card-shadow p-[30px] transform rotate-[-2deg] relative flex flex-col z-10"
+              >
+                <div className="bg-hot-red text-white px-[20px] py-[10px] border-[3px] border-black absolute -top-[20px] -right-[5px] md:-right-[20px] transform rotate-[15deg] text-[24px] z-10 shadow-sm">
+                  {roastData.vibe_title.split(' ')[0]?.toUpperCase() || 'STUPID'}!
                 </div>
+                
+                <div className="text-[18px] uppercase bg-black text-white px-3 py-1 w-fit mt-4 md:mt-0">VIBE SCORE</div>
+                
+                <div className="text-[80px] md:text-[120px] leading-none my-[10px] text-black tracking-tighter">
+                  {roastData.vibe_score}<span className="text-[32px]">/10</span>
+                </div>
+                
+                <div className="text-[20px] md:text-[22px] leading-tight mt-[20px] font-black">
+                  "{typedRoast}<span className="animate-pulse">_</span>"
+                </div>
+                
+                {typedRoast.length === roastData.roast.length && (
+                  <div className="mt-auto text-[14px] italic text-hot-red border-t-[2px] border-black pt-[10px] mt-8">
+                    {roastData.redemption}
+                  </div>
+                )}
               </div>
+            </motion.div>
+          )}
+        </section>
+      </main>
 
-              {typedRoast.length === roastData.roast.length && (
-                <motion.div 
-                  initial={{ scale: 0, rotate: -10 }}
-                  animate={{ scale: 1, rotate: -2 }}
-                  className="bg-violet border-4 border-black p-4 inline-block brutal-shadow mt-4 text-xl"
-                >
-                  <span className="font-bold">Redemption:</span> {roastData.redemption}
-                </motion.div>
+      <footer className="h-auto md:h-[120px] border-t-[4px] border-black flex flex-col md:grid md:grid-cols-[1fr_300px] bg-black shrink-0 z-10 relative">
+        <div className="flex flex-wrap md:flex-nowrap items-center px-[15px] md:px-[30px] gap-2 md:gap-5 py-4 md:py-0 overflow-x-auto">
+          <span className="text-white text-sm uppercase hidden md:block">Intensity:</span>
+          {(['Mild', 'Spicy', 'Nuclear'] as Intensity[]).map(level => (
+            <button
+              key={level}
+              onMouseEnter={playHoverSound}
+              onClick={() => setIntensity(level)}
+              className={`px-[15px] md:px-[30px] py-[10px] md:py-[15px] border-[3px] border-white text-sm md:text-lg cursor-pointer flex items-center gap-2 whitespace-nowrap transition-colors flex-1 md:flex-none justify-center
+                ${intensity === level ? 'bg-vivid-yellow text-black btn-shadow-active' : 'bg-black text-white hover:bg-gray-800'}`}
+            >
+              {level}
+              {level === 'Nuclear' && intensity === 'Nuclear' && (
+                <div className="w-[20px] h-[20px] md:w-[30px] md:h-[30px] bg-hot-red rounded-full flex items-center justify-center animate-spin-slow text-white border-2 border-black text-xs md:text-sm">
+                  ☢️
+                </div>
               )}
-
-              {/* Badges & Decor */}
-              <div className="absolute bottom-4 right-4 animate-bounce-intense text-5xl">
-                🔥
-              </div>
-              <div className="absolute bottom-8 left-8 text-black opacity-20 text-6xl font-black uppercase text-stroke transform -rotate-12 pointer-events-none">
-                ROASTED
-              </div>
-            </div>
-
-            {/* Action Buttons (Not included in screenshot) */}
-            <div className="flex gap-4 w-full max-w-3xl">
+            </button>
+          ))}
+        </div>
+        
+        {step === 'result' && roastData ? (
+           <div className="grid grid-cols-2 md:border-l-[4px] border-black h-[80px] md:h-auto">
               <button 
                 onClick={handleShare}
-                className="flex-1 bg-vivid-yellow text-black text-2xl font-black uppercase border-4 border-black py-4 brutal-btn flex items-center justify-center gap-2"
+                className="bg-vivid-yellow text-black text-xl md:text-2xl font-black uppercase flex items-center justify-center gap-2 border-r-[4px] border-black hover:bg-yellow-400 active:translate-y-1 active:translate-x-1 transition-transform border-y-[4px] md:border-y-0"
               >
-                <Share2 size={28} /> SAVE POSTER
+                <Share2 size={24} /> SAVE
               </button>
               <button 
                 onClick={() => setStep('input')}
-                className="bg-white text-black text-xl font-bold uppercase border-4 border-black py-4 px-8 brutal-btn flex items-center gap-2"
+                className="bg-white text-black text-xl md:text-2xl font-bold uppercase flex items-center justify-center gap-2 hover:bg-gray-200 active:translate-y-1 active:translate-x-1 transition-transform border-y-[4px] md:border-y-0"
               >
                 <RefreshCw size={24} /> AGAIN
               </button>
-            </div>
-          </motion.div>
+           </div>
+        ) : (
+          <button 
+            onClick={handleRoast}
+            disabled={loading}
+            className={`bg-hot-red text-white text-3xl md:text-[48px] font-black tracking-widest flex items-center justify-center cursor-pointer border-t-[4px] md:border-t-0 md:border-l-[4px] border-black active:translate-y-1 active:translate-x-1 uppercase relative min-h-[80px] md:min-h-0 ${loading ? 'opacity-80' : ''}`}
+          >
+            {loading ? <RefreshCw className="animate-spin" size={40} /> : 'ROAST ME'}
+          </button>
         )}
-      </div>
+      </footer>
     </div>
   );
 }
