@@ -5,10 +5,10 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { generateRoast } from './services/ai';
-import { motion } from 'motion/react';
+import { motion, AnimatePresence } from 'motion/react';
 import html2canvas from 'html2canvas';
 import confetti from 'canvas-confetti';
-import { Share2, RefreshCw, AlertCircle } from 'lucide-react';
+import { Share2, RefreshCw, AlertCircle, Sparkles, Music, Clapperboard, Pizza } from 'lucide-react';
 
 type Intensity = 'Mild' | 'Spicy' | 'Nuclear';
 
@@ -20,26 +20,33 @@ interface RoastData {
 }
 
 const InputBlock = ({ 
-  title, items, onChange, color 
+  title, items, onChange, icon: Icon
 }: { 
-  title: string, items: string[], onChange: (index: number, value: string) => void, color: string 
+  title: string, items: string[], onChange: (index: number, value: string) => void, icon: any
 }) => (
-  <div className={`border-[3px] border-black panel-shadow p-3 mb-3 shrink-0 ${color}`}>
-    <span className="text-[14px] uppercase mb-2 tracking-[1px] bg-black text-white inline-block px-2 py-0.5">{title}</span>
-    <div className="flex flex-col gap-1.5 mt-2">
+  <motion.div 
+    variants={{
+      hidden: { opacity: 0, y: 15 },
+      show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 350, damping: 25 } }
+    }}
+    className="glass-panel rounded-2xl p-6 transition-colors hover:border-purple-500/30 group"
+  >
+    <h3 className="text-sm font-bold text-zinc-300 flex items-center gap-2 mb-4 uppercase tracking-[0.1em]">
+      <Icon className="w-4 h-4 text-purple-400 group-hover:scale-110 transition-transform duration-300" /> {title}
+    </h3>
+    <div className="space-y-3">
       {items.map((item, i) => (
-        <div key={i} className="flex gap-1 mb-1 relative">
-          <input
-            className="bg-white border-[2px] border-black px-2 py-1.5 text-[16px] w-full font-black focus:outline-none focus:ring-2 focus:ring-black"
-            placeholder={`#${i + 1} item`}
-            value={item}
-            onChange={(e) => onChange(i, e.target.value)}
-            maxLength={50}
-          />
-        </div>
+        <input
+          key={i}
+          className="w-full glass-input border border-zinc-800/80 rounded-xl px-4 py-3.5 text-sm text-zinc-100 placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50 transition-all font-medium"
+          placeholder={`Enter item #${i + 1}`}
+          value={item}
+          onChange={(e) => onChange(i, e.target.value)}
+          maxLength={50}
+        />
       ))}
     </div>
-  </div>
+  </motion.div>
 );
 
 export default function App() {
@@ -57,7 +64,6 @@ export default function App() {
   const resultRef = useRef<HTMLDivElement>(null);
   const audioCtxRef = useRef<AudioContext | null>(null);
 
-  // Initialize Audio Context gracefully
   const getAudioCtx = () => {
     if (!audioCtxRef.current) {
       const AudioContextCtor = window.AudioContext || (window as any).webkitAudioContext;
@@ -66,7 +72,7 @@ export default function App() {
       }
     }
     if (audioCtxRef.current && audioCtxRef.current.state === 'suspended') {
-      audioCtxRef.current.resume().catch(() => {}); // catch resume failures silently
+      audioCtxRef.current.resume().catch(() => {});
     }
     return audioCtxRef.current;
   };
@@ -77,15 +83,15 @@ export default function App() {
       if (!ctx || ctx.state !== 'running') return;
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
-      osc.type = 'triangle';
+      osc.type = 'sine';
       osc.frequency.setValueAtTime(400, ctx.currentTime);
-      osc.frequency.exponentialRampToValueAtTime(800, ctx.currentTime + 0.1);
-      gain.gain.setValueAtTime(0.05, ctx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.1);
+      osc.frequency.exponentialRampToValueAtTime(600, ctx.currentTime + 0.05);
+      gain.gain.setValueAtTime(0.02, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.05);
       osc.connect(gain);
       gain.connect(ctx.destination);
       osc.start();
-      osc.stop(ctx.currentTime + 0.1);
+      osc.stop(ctx.currentTime + 0.05);
     } catch(e) {}
   };
 
@@ -107,12 +113,12 @@ export default function App() {
       osc.frequency.setValueAtTime(150, time);
       osc.frequency.exponentialRampToValueAtTime(20, time + 2);
 
-      gain.gain.setValueAtTime(0.8, time);
+      gain.gain.setValueAtTime(0.5, time);
       gain.gain.setTargetAtTime(0.01, time + 2, 0.5);
 
       filter.type = 'lowpass';
-      filter.frequency.setValueAtTime(1000, time);
-      filter.frequency.exponentialRampToValueAtTime(50, time + 2);
+      filter.frequency.setValueAtTime(800, time);
+      filter.frequency.exponentialRampToValueAtTime(40, time + 2);
       
       osc.start(time);
       osc.stop(time + 3);
@@ -125,14 +131,14 @@ export default function App() {
       if (!ctx || ctx.state !== 'running') return;
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
-      osc.type = 'square';
+      osc.type = 'sine';
       osc.frequency.setValueAtTime(800, ctx.currentTime);
-      gain.gain.setValueAtTime(0.1, ctx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.2);
+      gain.gain.setValueAtTime(0.05, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.1);
       osc.connect(gain);
       gain.connect(ctx.destination);
       osc.start();
-      osc.stop(ctx.currentTime + 0.2);
+      osc.stop(ctx.currentTime + 0.1);
     } catch(e) {}
   };
 
@@ -146,15 +152,14 @@ export default function App() {
   };
 
   const handleRoast = async () => {
-    getAudioCtx(); // Attempt to prime audio on interaction
+    getAudioCtx();
     
-    // Validate inputs
     const validSongs = songs.filter(s => s.trim().length > 0);
     const validMovies = movies.filter(m => m.trim().length > 0);
     const validFoods = foods.filter(f => f.trim().length > 0);
 
     if (validSongs.length === 0 && validMovies.length === 0 && validFoods.length === 0) {
-      setErrorMsg("Fill out at least one item! Give the AI something to roast.");
+      setErrorMsg("Please enter at least one item. The AI needs material.");
       return;
     }
 
@@ -167,7 +172,7 @@ export default function App() {
       startCountdown();
     } catch (e) {
       console.error(e);
-      setErrorMsg("AI breakdown! Couldn't comprehend your trash taste. Try again.");
+      setErrorMsg("System overload. Could not analyze inputs. Try again.");
       setLoading(false);
     }
   };
@@ -196,7 +201,7 @@ export default function App() {
       setTypedRoast('');
       let i = 0;
       const text = roastData.roast;
-      const speed = 25; // ms per char
+      const speed = 25;
       
       const typeInterval = setInterval(() => {
         if (i < text.length) {
@@ -214,12 +219,10 @@ export default function App() {
   const handleShare = async () => {
     if (!resultRef.current) return;
     try {
-      // Short delay ensuring fonts/layout update before drawing
       await new Promise(r => setTimeout(r, 100));
-      
       const canvas = await html2canvas(resultRef.current, {
-        backgroundColor: '#FFFDF5',
-        scale: window.devicePixelRatio || 2, // scale dynamically based on display
+        backgroundColor: '#09090b',
+        scale: window.devicePixelRatio || 2,
         useCORS: true,
         logging: false,
       });
@@ -227,20 +230,20 @@ export default function App() {
       
       const link = document.createElement('a');
       link.href = dataUrl;
-      link.download = 'my-roasted-vibe.png';
+      link.download = 'vibe-check-result.png';
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
       
       confetti({
-        particleCount: 150,
+        particleCount: 100,
         spread: 70,
         origin: { y: 0.8 },
-        colors: ['#FF6B6B', '#FFD93D', '#C4B5FD', '#000000']
+        colors: ['#a855f7', '#ec4899', '#ef4444', '#ffffff']
       });
     } catch (e) {
       console.error("Export failed", e);
-      setErrorMsg("Image export failed! Maybe try a screenshot?");
+      setErrorMsg("Image export failed. You might need to screenshot instead.");
     }
   };
 
@@ -251,148 +254,171 @@ export default function App() {
     setErrorMsg(null);
   };
 
-
-
   return (
-    <div className="min-h-[100dvh] md:h-[100dvh] w-full flex flex-col border-0 md:border-[4px] border-black bg-cream relative overflow-x-hidden md:overflow-hidden">
-      <div className="absolute inset-0 halftone pointer-events-none z-0"></div>
+    <div className="min-h-screen w-full flex flex-col pt-8 md:pt-16 pb-12 px-4 selection:bg-purple-500/30 relative">
+      {/* Ambient glowing background */}
+      <div className="fixed inset-0 pointer-events-none -z-10 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-purple-900/10 via-zinc-950/0 to-zinc-950/0 mix-blend-screen" />
       
-      <header className="h-[70px] md:h-[100px] flex items-center justify-center border-b-[4px] border-black bg-vivid-yellow overflow-hidden shrink-0 z-10 relative box-content shadow-[0_4px_0_rgba(0,0,0,1)] md:shadow-none">
-        <motion.div 
-          initial={{ y: -50, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          className="text-[28px] sm:text-[40px] md:text-[72px] tracking-tight md:tracking-[-4px] uppercase text-stroke whitespace-nowrap font-black px-4"
-        >
-          ROAST MY VIBE • JUDGE ME • ROAST MY VIBE
-        </motion.div>
+      {/* Header */}
+      <header className="mb-10 text-center flex flex-col items-center max-w-2xl mx-auto w-full">
+        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-zinc-900 border border-zinc-800 text-xs font-semibold text-zinc-300 tracking-[0.15em] uppercase mb-6 shadow-sm">
+           <Sparkles className="w-3.5 h-3.5 text-purple-400" /> AI-Powered Protocol
+        </div>
+        <h1 className="text-4xl sm:text-5xl md:text-7xl font-display font-black tracking-tighter text-white mb-4">
+          Roast My <span className="text-gradient">Vibe</span>
+        </h1>
+        <p className="text-zinc-400 text-sm sm:text-base md:text-lg max-w-md mx-auto leading-relaxed">
+          Input your favorite songs, movies, and foods. Our AI will brutally dissect your personality.
+        </p>
       </header>
 
-      <main className="flex-grow flex flex-col md:grid md:grid-cols-[400px_1fr] md:overflow-hidden z-10 relative">
-        {/* Left Side: Inputs */}
-        <section className={`p-4 md:p-6 border-b-[4px] md:border-b-0 md:border-r-[4px] border-black flex flex-col bg-white overflow-y-auto shrink-0 md:shrink border-black shadow-[0_4px_0_rgba(0,0,0,1)] md:shadow-none ${step !== 'input' ? 'hidden md:flex opacity-50 pointer-events-none' : ''}`}>
-          <div className="flex flex-col gap-[2px]">
-            <InputBlock title="Top 3 Bangers" items={songs} onChange={createChangeHandler(setSongs)} color="bg-violet" />
-            <InputBlock title="Top 3 Flicks" items={movies} onChange={createChangeHandler(setMovies)} color="bg-vivid-yellow" />
-            <InputBlock title="Top 3 Eats" items={foods} onChange={createChangeHandler(setFoods)} color="bg-cream" />
-          </div>
-        </section>
-
-        {/* Right Side: Results & Animation */}
-        <section className={`p-4 md:p-10 flex items-center justify-center relative overflow-y-auto min-h-[50vh] ${step === 'input' ? 'hidden md:flex bg-[#f0f0f0]' : 'flex bg-cream md:bg-[#f0f0f0]'}`}>
-          {step === 'input' && (
-            <div className="text-center opacity-30 pointer-events-none hidden md:block">
-              <div className="text-6xl font-black rotate-[-5deg]">🔥 READY 🔥</div>
+      <main className="flex-grow flex flex-col items-center w-full max-w-5xl mx-auto">
+        
+        {step === 'input' && (
+          <motion.div 
+            initial="hidden"
+            animate="show"
+            variants={{
+              hidden: { opacity: 0 },
+              show: {
+                opacity: 1,
+                transition: { staggerChildren: 0.1 }
+              }
+            }}
+            className="w-full flex flex-col"
+          >
+            {/* Form Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 w-full">
+              <InputBlock title="Top Bangers" items={songs} onChange={createChangeHandler(setSongs)} icon={Music} />
+              <InputBlock title="Top Flicks" items={movies} onChange={createChangeHandler(setMovies)} icon={Clapperboard} />
+              <InputBlock title="Top Eats" items={foods} onChange={createChangeHandler(setFoods)} icon={Pizza} />
             </div>
-          )}
 
-          {step === 'countdown' && (
+            {/* Intensity & Submit Container */}
+            <motion.div 
+              variants={{ hidden: { opacity: 0, y: 15 }, show: { opacity: 1, y: 0 } }}
+              className="mt-10 max-w-md mx-auto w-full flex flex-col items-center gap-6"
+            >
+              
+              <div className="glass-panel p-1.5 rounded-full flex w-full relative">
+                {(['Mild', 'Spicy', 'Nuclear'] as Intensity[]).map(level => (
+                  <button
+                    key={level}
+                    onMouseEnter={playHoverSound}
+                    onClick={() => setIntensity(level)}
+                    className={`relative flex-1 py-3 rounded-full text-sm font-bold transition-all
+                      ${intensity === level ? 'text-white shadow-sm' : 'text-zinc-500 hover:text-zinc-300'}`}
+                  >
+                    {intensity === level && (
+                      <motion.div 
+                        layoutId="active-pill"
+                        className="absolute inset-0 bg-zinc-800 rounded-full z-0 border border-zinc-700/50"
+                        transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                      />
+                    )}
+                    <span className="relative z-10 flex items-center justify-center gap-2">
+                      {level} {level === 'Nuclear' && intensity === 'Nuclear' && <span className="text-[10px]">☢️</span>}
+                    </span>
+                  </button>
+                ))}
+              </div>
+
+              {errorMsg && (
+                <motion.div 
+                  initial={{ opacity: 0, scale: 0.95 }} 
+                  animate={{ opacity: 1, scale: 1 }} 
+                  className="flex items-center gap-2 text-red-400 bg-red-500/10 px-4 py-2 rounded-lg text-sm font-medium w-full justify-center"
+                >
+                  <AlertCircle className="w-4 h-4" /> {errorMsg}
+                </motion.div>
+              )}
+
+              <button 
+                onClick={handleRoast}
+                disabled={loading}
+                className={`w-full relative shimmer-container overflow-hidden bg-gradient-btn text-white text-[15px] font-bold tracking-[0.2em] uppercase py-4 rounded-full transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none glow-shadow`}
+              >
+                {loading ? <RefreshCw className="animate-spin w-6 h-6 mx-auto" /> : 'Roast Me'}
+              </button>
+            </motion.div>
+          </motion.div>
+        )}
+
+        {step === 'countdown' && (
+          <div className="flex items-center justify-center flex-grow w-full min-h-[40vh]">
             <motion.div
               key={countdown}
               initial={{ scale: 0.5, opacity: 0 }}
               animate={{ scale: 1.5, opacity: 1 }}
               exit={{ scale: 2, opacity: 0 }}
-              className="text-[120px] md:text-[200px] font-black text-stroke-huge leading-none"
+              className="text-[120px] md:text-[200px] font-display font-black text-white leading-none text-transparent bg-clip-text bg-gradient-btn"
             >
               {countdown}
             </motion.div>
-          )}
-
-          {step === 'result' && roastData && (
-            <motion.div 
-              initial={{ scale: 0.9, opacity: 0, y: 30 }}
-              animate={{ scale: 1, opacity: 1, y: 0 }}
-              className="w-full flex justify-center py-4 md:py-0"
-            >
-              <div className="absolute top-[20px] left-[20px] text-[40px] z-20 animate-bounce-intense hidden md:block select-none pointer-events-none">🔥</div>
-              
-              <div 
-                ref={resultRef}
-                className="bg-white w-[500px] max-w-full min-h-[400px] border-[4px] border-black card-shadow p-[20px] sm:p-[30px] transform md:rotate-[-2deg] relative flex flex-col z-10"
-              >
-                <div className="bg-hot-red text-white px-[15px] py-[8px] md:px-[20px] md:py-[10px] border-[3px] border-black absolute -top-[15px] right-[10px] md:-top-[20px] md:-right-[20px] transform rotate-[10deg] text-[18px] md:text-[24px] z-10 shadow-sm leading-none whitespace-nowrap overflow-hidden text-ellipsis max-w-full">
-                  {roastData.vibe_title.toUpperCase()}
-                </div>
-                
-                <div className="text-[14px] md:text-[18px] uppercase bg-black text-white px-3 py-1 w-fit mt-5 md:mt-0 leading-none">VIBE SCORE</div>
-                
-                <div className="text-[72px] md:text-[120px] leading-none my-[5px] text-black tracking-tighter">
-                  {roastData.vibe_score}<span className="text-[24px] md:text-[32px]">/10</span>
-                </div>
-                
-                <div className="text-[16px] md:text-[22px] leading-[1.3] mt-[10px] md:mt-[20px] font-black break-words">
-                  "{typedRoast}<span className="animate-pulse">_</span>"
-                </div>
-                
-                {typedRoast.length === roastData.roast.length && (
-                  <div className="mt-auto text-[13px] md:text-[14px] italic text-hot-red border-t-[2px] border-black pt-[10px] mt-6">
-                    {roastData.redemption}
-                  </div>
-                )}
-              </div>
-            </motion.div>
-          )}
-        </section>
-      </main>
-
-      <footer className={`h-auto md:h-[120px] border-t-[4px] border-black flex flex-col md:grid md:grid-cols-[1fr_300px] bg-black shrink-0 z-10 relative ${step !== 'input' && step !== 'result' ? 'opacity-50 pointer-events-none' : ''}`}>
-        
-        {/* Mobile Error Bar (Shows right above footer contents when active) */}
-        {errorMsg && step === 'input' && (
-          <div className="bg-red-500 text-white font-bold text-[14px] p-3 flex items-center justify-center gap-2 border-b-[4px] border-black w-full animate-pulse md:absolute md:-top-[48px] md:border-b-0 md:border-t-[4px] md:border-black">
-            <AlertCircle size={20} className="shrink-0" />
-            <span className="truncate">{errorMsg}</span>
           </div>
         )}
 
-        <div className="flex flex-wrap md:flex-nowrap items-center px-4 md:px-[30px] gap-2 md:gap-5 py-4 overflow-x-auto min-h-[80px]">
-          <span className="text-white text-[14px] uppercase shrink-0 font-black hidden md:block">Intensity:</span>
-          {(['Mild', 'Spicy', 'Nuclear'] as Intensity[]).map(level => (
-            <button
-              key={level}
-              onMouseEnter={playHoverSound}
-              onClick={() => step === 'input' && setIntensity(level)}
-              disabled={step !== 'input'}
-              className={`px-[10px] sm:px-[15px] md:px-[30px] py-[10px] md:py-[15px] border-[3px] border-white text-[14px] sm:text-[16px] md:text-lg cursor-pointer flex items-center gap-2 whitespace-nowrap transition-colors flex-1 md:flex-none justify-center
-                ${intensity === level ? 'bg-vivid-yellow text-black btn-shadow-active' : 'bg-black text-white hover:bg-gray-800'}
-                ${step !== 'input' ? 'opacity-70' : ''}`}
+        {step === 'result' && roastData && (
+          <motion.div 
+            initial={{ scale: 0.95, opacity: 0, y: 20 }}
+            animate={{ scale: 1, opacity: 1, y: 0 }}
+            className="w-full flex flex-col items-center gap-8 mt-4"
+          >
+            {/* Shareable Card */}
+            <div 
+              ref={resultRef}
+              className="bg-zinc-900 border border-zinc-800 rounded-3xl p-8 sm:p-12 relative flex flex-col items-center justify-center text-center overflow-hidden w-full max-w-2xl mx-auto shadow-2xl bg-gradient-card"
             >
-              {level}
-              {level === 'Nuclear' && intensity === 'Nuclear' && (
-                <div className="w-[18px] h-[18px] md:w-[30px] md:h-[30px] bg-hot-red rounded-full flex items-center justify-center animate-spin-slow text-white border-2 border-black text-[10px] md:text-sm">
-                  ☢️
+              <div className="relative z-10 w-full flex flex-col items-center">
+                
+                {/* Visual Ring / Score */}
+                <div className="inline-flex items-center justify-center w-32 h-32 md:w-40 md:h-40 rounded-full bg-zinc-950/80 border border-zinc-800 shadow-[0_0_30px_rgba(168,85,247,0.15)] mb-8">
+                   <div className="flex flex-col items-center">
+                     <span className="text-5xl md:text-6xl font-display font-black text-white leading-none pb-1">{roastData.vibe_score}</span>
+                     <span className="text-[10px] md:text-xs font-bold text-zinc-500 tracking-[0.2em] uppercase">Score</span>
+                   </div>
                 </div>
-              )}
-            </button>
-          ))}
-        </div>
-        
-        {step === 'result' ? (
-           <div className="grid grid-cols-2 md:border-l-[4px] border-black h-[70px] md:h-auto">
+                
+                <h3 className="text-sm md:text-base font-bold text-pink-400 tracking-[0.2em] uppercase mb-6 px-4">
+                   {roastData.vibe_title}
+                </h3>
+                
+                <p className="text-lg md:text-2xl text-zinc-100 font-medium leading-relaxed mb-10 max-w-xl">
+                   "{typedRoast}<span className="inline-block w-2 md:w-3 h-5 md:h-6 ml-1 bg-purple-500 animate-pulse-slow align-middle"></span>"
+                </p>
+
+                {typedRoast.length === roastData.roast.length && (
+                  <motion.div 
+                    initial={{ opacity: 0 }} 
+                    animate={{ opacity: 1 }} 
+                    className="text-sm text-zinc-400 italic max-w-md mx-auto"
+                  >
+                    <span className="text-zinc-600 font-semibold not-italic text-[10px] md:text-xs uppercase tracking-widest block mb-1">Redemption</span>
+                    {roastData.redemption}
+                  </motion.div>
+                )}
+              </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="grid grid-cols-2 gap-4 w-full max-w-md">
               <button 
                 onClick={handleShare}
-                className="bg-vivid-yellow text-black text-[18px] md:text-2xl font-black uppercase flex items-center justify-center gap-2 border-r-[4px] border-black hover:bg-yellow-400 active:bg-yellow-500 transition-colors border-t-[4px] md:border-t-0"
+                className="bg-zinc-800 text-white text-sm font-bold uppercase tracking-wider flex items-center justify-center gap-2 py-4 rounded-xl hover:bg-zinc-700 transition-colors"
               >
-                <Share2 size={24} className="shrink-0" /> 
-                <span>SAVE</span>
+                <Share2 className="w-4 h-4" /> Save
               </button>
               <button 
                 onClick={resetTarget}
-                className="bg-white text-black text-[18px] md:text-2xl font-bold uppercase flex items-center justify-center gap-2 hover:bg-gray-200 active:bg-gray-300 transition-colors border-t-[4px] md:border-t-0"
+                className="bg-zinc-100 text-zinc-900 text-sm font-bold uppercase tracking-wider flex items-center justify-center gap-2 py-4 rounded-xl hover:bg-white transition-colors"
               >
-                <RefreshCw size={24} className="shrink-0" /> 
-                <span className="hidden sm:inline">AGAIN</span>
+                <RefreshCw className="w-4 h-4" /> Again
               </button>
-           </div>
-        ) : (
-          <button 
-            onClick={handleRoast}
-            disabled={loading || step !== 'input'}
-            className={`bg-hot-red text-white text-[28px] sm:text-[32px] md:text-[48px] font-black tracking-widest flex items-center justify-center cursor-pointer border-t-[4px] md:border-t-0 md:border-l-[4px] border-black hover:opacity-90 active:opacity-100 uppercase relative min-h-[80px] md:min-h-0 transition-opacity ${loading ? 'opacity-50' : ''}`}
-          >
-            {loading ? <RefreshCw className="animate-spin" size={32} /> : 'ROAST ME'}
-          </button>
+            </div>
+
+          </motion.div>
         )}
-      </footer>
+      </main>
     </div>
   );
 }
