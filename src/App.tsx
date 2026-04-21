@@ -19,6 +19,29 @@ interface RoastData {
   redemption: string;
 }
 
+const InputBlock = ({ 
+  title, items, onChange, color 
+}: { 
+  title: string, items: string[], onChange: (index: number, value: string) => void, color: string 
+}) => (
+  <div className={`border-[3px] border-black panel-shadow p-3 mb-3 shrink-0 ${color}`}>
+    <span className="text-[14px] uppercase mb-2 tracking-[1px] bg-black text-white inline-block px-2 py-0.5">{title}</span>
+    <div className="flex flex-col gap-1.5 mt-2">
+      {items.map((item, i) => (
+        <div key={i} className="flex gap-1 mb-1 relative">
+          <input
+            className="bg-white border-[2px] border-black px-2 py-1.5 text-[16px] w-full font-black focus:outline-none focus:ring-2 focus:ring-black"
+            placeholder={`#${i + 1} item`}
+            value={item}
+            onChange={(e) => onChange(i, e.target.value)}
+            maxLength={50}
+          />
+        </div>
+      ))}
+    </div>
+  </div>
+);
+
 export default function App() {
   const [songs, setSongs] = useState(['', '', '']);
   const [movies, setMovies] = useState(['', '', '']);
@@ -113,11 +136,7 @@ export default function App() {
     } catch(e) {}
   };
 
-  const handleInputChange = (
-    setter: React.Dispatch<React.SetStateAction<string[]>>,
-    index: number,
-    value: string
-  ) => {
+  const createChangeHandler = (setter: React.Dispatch<React.SetStateAction<string[]>>) => (index: number, value: string) => {
     setter(prev => {
       const next = [...prev];
       next[index] = value;
@@ -232,28 +251,7 @@ export default function App() {
     setErrorMsg(null);
   };
 
-  const InputBlock = ({ 
-    title, items, setter, color 
-  }: { 
-    title: string, items: string[], setter: any, color: string 
-  }) => (
-    <div className={`border-[3px] border-black panel-shadow p-3 mb-3 shrink-0 ${color}`}>
-      <span className="text-[14px] uppercase mb-2 tracking-[1px] bg-black text-white inline-block px-2 py-0.5">{title}</span>
-      <div className="flex flex-col gap-1.5 mt-2">
-        {items.map((item, i) => (
-          <div key={i} className="flex gap-1 mb-1 relative">
-            <input
-              className="bg-white border-[2px] border-black px-2 py-1.5 text-[16px] w-full font-black focus:outline-none focus:ring-2 focus:ring-black"
-              placeholder={`#${i + 1} item`}
-              value={item}
-              onChange={(e) => handleInputChange(setter, i, e.target.value)}
-              maxLength={50}
-            />
-          </div>
-        ))}
-      </div>
-    </div>
-  );
+
 
   return (
     <div className="min-h-[100dvh] md:h-[100dvh] w-full flex flex-col border-0 md:border-[4px] border-black bg-cream relative overflow-x-hidden md:overflow-hidden">
@@ -273,9 +271,9 @@ export default function App() {
         {/* Left Side: Inputs */}
         <section className={`p-4 md:p-6 border-b-[4px] md:border-b-0 md:border-r-[4px] border-black flex flex-col bg-white overflow-y-auto shrink-0 md:shrink border-black shadow-[0_4px_0_rgba(0,0,0,1)] md:shadow-none ${step !== 'input' ? 'hidden md:flex opacity-50 pointer-events-none' : ''}`}>
           <div className="flex flex-col gap-[2px]">
-            <InputBlock title="Top 3 Bangers" items={songs} setter={setSongs} color="bg-violet" />
-            <InputBlock title="Top 3 Flicks" items={movies} setter={setMovies} color="bg-vivid-yellow" />
-            <InputBlock title="Top 3 Eats" items={foods} setter={setFoods} color="bg-cream" />
+            <InputBlock title="Top 3 Bangers" items={songs} onChange={createChangeHandler(setSongs)} color="bg-violet" />
+            <InputBlock title="Top 3 Flicks" items={movies} onChange={createChangeHandler(setMovies)} color="bg-vivid-yellow" />
+            <InputBlock title="Top 3 Eats" items={foods} onChange={createChangeHandler(setFoods)} color="bg-cream" />
           </div>
         </section>
 
